@@ -18,6 +18,8 @@
       </div>
     </div>
 
+    <p>current slide: <span id="index"></span></p>
+
     <style>
       .deck {
         position: relative;
@@ -60,6 +62,7 @@
     <script>
       const decks = document.getElementsByClassName("deck");
       const deck = decks.item(0);
+      const indexField = document.getElementById("index");
 
       if (!deck) {
         throw new Error(
@@ -79,6 +82,9 @@
           const action = entry.intersectionRatio > 0.5 ? "entering" : "leaving";
           const element = entry.target;
           console.log(`${action} ${element.getAttribute("data-index")}`);
+          if (entry.intersectionRatio > 0.5) {
+            indexField.textContent = element.getAttribute("data-index");
+          }
         }
       };
 
