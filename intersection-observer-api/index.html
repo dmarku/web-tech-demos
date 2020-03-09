@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>IntersectionObserver API Test</title>
+  </head>
+  <body>
+    <h1>IntersectionObserver API Test</h1>
+    <div class="deck">
+      <div class="card" id="one" data-index="1">
+        <p>One</p>
+      </div>
+      <div class="card" id="two" data-index="2">
+        <p>Two</p>
+      </div>
+      <div class="card" id="three" data-index="3">
+        <p>Three</p>
+      </div>
+    </div>
+
+    <style>
+      .deck {
+        position: relative;
+        border: 2px solid black;
+        width: 400px;
+        height: 300px;
+        padding: 0px;
+
+        display: flex;
+        flex-flow: row nowrap;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        overflow-x: scroll;
+        overflow-y: hidden;
+      }
+
+      .card {
+        min-width: 400px;
+        height: 100%;
+        text-align: center;
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+
+        scroll-snap-align: start;
+      }
+
+      .card#one {
+        background: #ff0000;
+      }
+
+      .card#two {
+        background: #00ff00;
+      }
+
+      .card#three {
+        background: #0000ff;
+      }
+    </style>
+    <script>
+      const decks = document.getElementsByClassName("deck");
+      const deck = decks.item(0);
+
+      if (!deck) {
+        throw new Error(
+          "There is no card deck. Please add at least one element with class 'deck'"
+        );
+      }
+
+      const cards = deck.getElementsByClassName("card");
+
+      /** @type {IntersectionObserverCallback} */
+      const onIntersection = entries => {
+        for (const entry of entries) {
+          // entry.isIntersecting should be true if entering, false if leaving
+          // works in Chrome, doesn't work in Firefox
+          // checking if ratio is greater / lesser than threshold seems to work for both
+          // TODO: test safari
+          const action = entry.intersectionRatio > 0.5 ? "entering" : "leaving";
+          const element = entry.target;
+          console.log(`${action} ${element.getAttribute("data-index")}`);
+        }
+      };
+
+      const observer = new IntersectionObserver(onIntersection, {
+        root: deck,
+        threshold: 0.5
+      });
+
+      for (const card of cards) {
+        observer.observe(card);
+      }
+    </script>
+  </body>
+</html>
