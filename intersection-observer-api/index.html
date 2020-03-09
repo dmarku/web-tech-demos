@@ -83,7 +83,6 @@
     <script>
       const decks = document.getElementsByClassName("deck");
       const deck = decks.item(0);
-      const indexField = document.getElementById("index");
 
       if (!deck) {
         throw new Error(
@@ -93,6 +92,14 @@
 
       const cards = deck.getElementsByClassName("card");
 
+      const indexField = document.getElementById("index");
+
+      // threshold above which a card is considered "entered"
+      const enterThreshold = 0.75;
+
+      // threshold below which a card is considered "left"
+      const leaveThreshold = 0.25;
+
       /** @type {IntersectionObserverCallback} */
       const onIntersection = entries => {
         for (const entry of entries) {
@@ -100,10 +107,15 @@
           // works in Chrome, doesn't work in Firefox
           // checking if ratio is greater / lesser than threshold seems to work for both
           // TODO: test safari
-          const action = entry.intersectionRatio > 0.5 ? "entering" : "leaving";
+          const action =
+            entry.intersectionRatio >= enterThreshold
+              ? "entering"
+              : entry.intersectionRatio <= leaveThreshold
+              ? "leaving"
+              : "none";
+
           const element = entry.target;
-          console.log(`${action} ${element.getAttribute("data-index")}`);
-          if (entry.intersectionRatio > 0.5) {
+          if (action === "entering") {
             indexField.textContent = element.getAttribute("data-index");
           }
         }
@@ -111,7 +123,7 @@
 
       const observer = new IntersectionObserver(onIntersection, {
         root: deck,
-        threshold: 0.5
+        threshold: [enterThreshold, leaveThreshold]
       });
 
       for (const card of cards) {
